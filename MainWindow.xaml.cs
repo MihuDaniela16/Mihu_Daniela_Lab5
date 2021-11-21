@@ -67,11 +67,17 @@ namespace Mihu_Daniela_Lab5
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
             action = ActionState.New;
+            BindingOperations.ClearBinding(firstNameTextBox, TextBox.TextProperty);
+            BindingOperations.ClearBinding(lastNameTextBox, TextBox.TextProperty);
+            SetValidationBinding();
         }
 
         private void btnEditO_Click(object sender, RoutedEventArgs e)
         {
             action = ActionState.Edit;
+            BindingOperations.ClearBinding(firstNameTextBox, TextBox.TextProperty);
+            BindingOperations.ClearBinding(lastNameTextBox, TextBox.TextProperty);
+            SetValidationBinding();
         }
 
         private void btnDeleteO_Click(object sender, RoutedEventArgs e)
@@ -162,6 +168,7 @@ namespace Mihu_Daniela_Lab5
         private void btnPrev1_Click(object sender, RoutedEventArgs e)
         {
             inventoryVSource.View.MoveToPrevious();
+          
         }
         private void SaveInventory()
         {
@@ -330,6 +337,28 @@ namespace Mihu_Daniela_Lab5
         {
             var queryOrder = from ord in ctx.Orders join cust in ctx.Customers on ord.CustId equals cust.CustId join inv in ctx.Inventories on ord.CarId equals inv.CarId select new { ord.OrderId, ord.CarId, ord.CustId, cust.FirstName, cust.LastName, inv.Make, inv.Color };
             customerOrdersVSource.Source = queryOrder.ToList();
+        }
+
+        private void SetValidationBinding()
+        {
+            Binding firstNameValidationBinding = new Binding();
+            firstNameValidationBinding.Source = customerVSource;
+            firstNameValidationBinding.Path = new PropertyPath("FirstName");
+            firstNameValidationBinding.NotifyOnValidationError = true;
+            firstNameValidationBinding.Mode = BindingMode.TwoWay;
+            firstNameValidationBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            //string required
+            firstNameValidationBinding.ValidationRules.Add(new StringNotEmpty());
+            firstNameTextBox.SetBinding(TextBox.TextProperty, firstNameValidationBinding);
+
+            Binding lastNameValidationBinding = new Binding();
+            lastNameValidationBinding.Source = customerVSource;
+            lastNameValidationBinding.Path = new PropertyPath("Last Name");
+            lastNameValidationBinding.NotifyOnValidationError = true;
+            lastNameValidationBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            //string min length validator
+            lastNameValidationBinding.ValidationRules.Add(new StringMinLenghtValidator());
+            lastNameValidationBinding.SetBinding(TextBox.TextProperty, lastNameValidationBinding); //setare binding nou
         }
     }
 }
